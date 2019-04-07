@@ -2,6 +2,28 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+class Position extends Component{
+
+}
+
+class Request extends Component {
+  render() {
+    return (
+        <div>
+          <div>
+            {this.props.number}
+          </div>
+          <div>
+            {this.props.date}
+          </div>
+          <div>
+            {this.props.fio}
+          </div>
+      </div>
+    );
+  }
+}
+
 class App extends Component {
   render() {
     return (
