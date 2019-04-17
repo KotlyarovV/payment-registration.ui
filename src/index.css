@@ -8,7 +8,73 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  height : 100%
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+
+.work figure.white dl{
+  background: #FFF;
+}
+
+.wrapper-part-info{
+  position:relative;
+  width:100%;
+  background-color:#FFFFFF;
+}
+
+.commentTextStyle {
+  line-height: 0;
+}
+
+.part-info{
+  float:left;
+  width:calc(100% - 53px);
+  text-align:left;
+  line-height:35px;
+  font-family: Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 15px;
+  font-weight:400;
+  color:#666;
+  margin-left:10px;
+}
+
+.payment{
+  background-color: #DBEBC6;
+  margin-bottom: 10px;
+  padding: 7px;
+  border-radius: 20px;
+}
+
+.image-cross{
+  margin-left: 66%;
+  height:20px;
+  position: absolute;
+}
+
+.image-file{
+  height: 30px;
+}
+
+.number{
+  margin-left:75%;
+  margin-top: 1%;
+  height:20px;
+  position: absolute;
+}
+
+.add{
+  /*margin-left:35%;*/
+  margin-left:15px;
+  margin-bottom: 15px;
+  width: 40%;
+  background-color: #AEE269;
+  border-radius: 7px;
 }

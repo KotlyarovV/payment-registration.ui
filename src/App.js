@@ -1,66 +1,83 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React, {Component} from 'react';
 import './App.css';
+import CreateOrUpdatePaymentForm from './CreateOrUpdatePaymentForm.js'
 
-class Position extends Component{
 
+class PaymentFormItem extends Component{
+    render() {
+        const commentTextStyle = {
+            lineHeight : '1.5',
+            paddingBottom: '10px'
+        };
+
+        const files = this.props.item.files
+            .map(f => <a href={`https://localhost:44379/files/${f.wayToFile}`} download={f.wayToFile}><img className="image-file" src={require("./img/file.png")}/></a>);
+
+        return (
+            <div className="payment">
+                <div>
+                    <div>
+                        Сумма {this.props.item.sum} руб.<br/>
+                    </div>
+                    <div style={commentTextStyle}>
+                        Комментарий: {this.props.item.comment}<br/>
+                    </div>
+                    {files}
+                </div>
+            </div>
+        );
+    }
 }
-
 
 class PaymentForm extends Component{
-    constructor(props) {
-        super(props);
+
+    static prepareDate(date) {
+        let milliseconds = Date.parse(date);
+        let d = new Date(milliseconds);
+        let month = d.getMonth() < 10 ? `0${d.getMonth()}` : d.getMonth();
+        return `${d.getDate()}.${month}.${d.getFullYear()}`;
     }
 
     render() {
+
+        const formStyle = {
+            borderStyle : 'solid',
+            borderRadius : '5px',
+            borderColor : 'green',
+            padding : '2px 16px',
+            width : '380px',
+            height : 'auto'
+        };
+
+        const figureStyle = {
+            height : 'auto'
+        };
+
+        const paymentItems = this.props.form.items.map(i => <PaymentFormItem item = {i}/>);
+
         return (
-            <div>
-                {this.props.number}
-                {this.props.applicant.name}
-                {this.props.type}
-            </div>
-        )
-    }
-}
+            <div style={formStyle}>
+                <figure style={figureStyle}>
+                    <div className="wrapper-part-info">
+                        <div className="part-info">
+                            <b>Заявка номер {this.props.form.number}</b> <br/>
+                            Дата {PaymentForm.prepareDate(this.props.form.date)}<br/>
+                            Тип {this.props.form.type}<br/>
+                            Полная сумма {this.props.form.items.reduce((a, b) => a + b.sum, 0)} руб.<br/>
+                            {this.props.form.applicant.lastName}&nbsp;
+                            {this.props.form.applicant.name}&nbsp;
+                            {this.props.form.applicant.surname}
+                            <div>
+                                {paymentItems}
+                            </div>
+                            <div>
+                                <button className="add">UPDATE</button>
+                                <button className="add" onClick={this.props.onDeleteButtonClick}>DELETE</button>
+                            </div>
+                        </div>
+                    </div>
 
-class CreatePaymentForm extends Component{
-    constructor(props) {
-        super(props);
-
-        this.state = {value: ''};
-
-        this.handleChange = this.handleChange.bind(this);
-        this.createForm = this.createForm.bind(this);
-    }
-
-    handleChange(event) {
-        this.setState({value: event.target.value});
-    }
-
-    createForm() {
-
-        fetch('https://localhost:44379/paymentForm',
-            {
-                method : 'post',
-                body : JSON.stringify(this.state.form)
-            })
-            .then(function (response) {
-                console.log();
-                return response.json();
-            })
-            .then(function (data) {
-                console.log(data);
-            })
-    }
-
-    render() {
-        return (
-            <div>
-                <label>
-                    Name:
-                    <input type="text" value={this.state.value} onChange={this.handleChange} />
-                </label>
-                <input type="submit" value="Submit" onClick={this.createForm()}/>
+                </figure>
             </div>
         )
     }
@@ -85,46 +102,59 @@ class PaymentFormList extends Component{
         this.fetchForms();
     }
 
+    onDeleteButton = (id) => {
+        const idForDelete = id;
+        return () => {
+            fetch('https://localhost:44379/paymentForm/' + idForDelete,
+                {
+                    method: 'delete'
+                })
+                .then(r => this.fetchForms());
+        }
+    };
+
     render() {
 
-        const forms = this.state.forms.map((form) => <PaymentForm
-            number={form.number}
-            type = {form.type}
-            applicant = {form.applicant}/>)
+        const listStyle = {
+            display : 'flex',
+            flexWrap : 'wrap'
+        };
+
+        const buttonStyle = {
+            backgroundColor : '#4CAF50',
+            border : 'none',
+            padding: '30px 32 px',
+            textAlign: 'center',
+            textDecoration: 'none',
+            display: 'inline-block',
+            fontSize: '16px',
+            marginBottom : '15px',
+            width: '100%',
+            height : '50px'
+        };
+
+        const forms = this.state.forms.sort((f) => - f.number).map((form) =>
+            <PaymentForm
+                form={form}
+                onDeleteButtonClick = {this.onDeleteButton(form.id)}/>);
         return (
-          <div>
-              {forms}
-              {this.state.error}
-          </div>
+            <div>
+                <div>
+                    <button style={buttonStyle}>Добавить</button>
+                </div>
+                <div style={listStyle}>
+                    {forms}
+                </div>
+            </div>
         );
     }
 }
 
 class App extends Component {
   render() {
-      /*
-    return (
-
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );*/
       return (
-          //<PaymentFormList/>
-          <CreatePaymentForm/>
+         // <PaymentFormList/>
+          <CreateOrUpdatePaymentForm/>
       );
   }
 }
