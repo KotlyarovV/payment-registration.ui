@@ -1,10 +1,61 @@
 import React, {Component} from "react";
 
+class PaymentFormCreateOrUpdateItem  extends Component{
+    render() {
+
+        const textAreaStyle = {
+            border : '1px solid #4CAF50',
+            fontSize: '20px',
+            marginBottom : '15px',
+            marginTop : '20px',
+            width: '95%',
+            height : '150px'
+        };
+        const itemStyle = {
+            borderStyle : 'dotted',
+            borderColor : 'green',
+            display : 'flex',
+            flexDirection : 'column',
+            textAlign : 'center',
+            padding : '20px',
+            margin : '10px'
+        };
+        const inputStyle = {
+            width: '95%',
+            padding: '12px 20px',
+            margin: '8px 30px',
+            display: 'inline-block',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            boxSizing: 'border-box'
+        };
+
+        return (<div style={itemStyle}>
+            <div>
+                <label>Сумма</label>
+                <input type='number' style={inputStyle}/>
+                <label>Комментарий</label>
+                <textarea style={textAreaStyle}/>
+            </div>
+        </div>);
+    }
+
+}
+
+
 export default class CreateOrUpdatePaymentForm extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {form: {}};
+        const items = [];
+
+        if (props.items !== undefined) {
+
+        } else {
+            items.push({sum : 0, comment : '', files : []});
+        }
+
+        this.state = {items : items};
 
         this.handleChange = this.handleChange.bind(this);
         this.createForm = this.createForm.bind(this);
@@ -15,8 +66,18 @@ export default class CreateOrUpdatePaymentForm extends Component {
     }
 
     createForm() {
-        console.log(JSON.stringify(this.state.form));
-        console.log(this.state.form);
+
+        //const items = this.items.
+
+        var forms = {
+            name : '',
+            lastName : '',
+            surname : '',
+            type : 1
+        };
+        console.log(JSON.stringify(forms))
+
+
         fetch('https://localhost:44379/paymentForm',
             {
                 method: 'post',
@@ -30,9 +91,14 @@ export default class CreateOrUpdatePaymentForm extends Component {
                // console.log(data);
             })
             .catch(error => this.setState({error}));
-        ;
+
     }
 
+    addItemForm = () => {
+        this.setState((prevState) => ({
+            items : [...prevState.items, {sum : 0, comment : '', files : []}]
+        }));
+    };
 
 
     render() {
@@ -49,13 +115,17 @@ export default class CreateOrUpdatePaymentForm extends Component {
         };
 
         const paymentFormStyle = {
-            borderStyle : 'solid none solid none',
+            borderStyle : 'dotted',
             borderColor : 'green',
-            padding : '20px'
+            display : 'flex',
+            flexDirection : 'column',
+            textAlign : 'center',
+            padding : '20px',
+            margin : '10px'
         };
 
         const inputStyle = {
-            width: '100%',
+            width: '95%',
             padding: '12px 20px',
             margin: '8px 30px',
             display: 'inline-block',
@@ -91,6 +161,7 @@ export default class CreateOrUpdatePaymentForm extends Component {
             marginTop: '10px'
         };
 
+        const items = this.state.items.map(i => <PaymentFormCreateOrUpdateItem item = {i}/>);
 
         return (
             <div style={formBox}>
@@ -109,16 +180,8 @@ export default class CreateOrUpdatePaymentForm extends Component {
                         <option value="2">2</option>
                     </select>
                 </div>
-                <div>
-                    <div>
-                        <label>Сумма</label>
-                        <input type='number' style={inputStyle}/>
-                        <label>Комментарий</label>
-                        <input type={}/>
-                    </div>
-
-                </div>
-                <button style={addButtonStyle}>Добавить запись</button>
+                {items}
+                <button style={addButtonStyle} onClick={this.addItemForm}>Добавить запись</button>
                 <input type="submit" style={buttonStyle} value="Submit" onClick={this.createForm}/>
             </div>
         )
