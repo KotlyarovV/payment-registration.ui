@@ -12,6 +12,14 @@ class PaymentFormCreateOrUpdateItem  extends Component{
         this.setState({ files: [...this.state.files, file] })
     };
 
+    onChangeComment = (event) => {
+        this.props.onCommentChange(event.target.value);
+    };
+
+    onChangeSum = (event) => {
+      this.props.onSumChange(event.target.value);
+    };
+
     render() {
 
         const textAreaStyle = {
@@ -40,17 +48,34 @@ class PaymentFormCreateOrUpdateItem  extends Component{
             borderRadius: '4px',
             boxSizing: 'border-box'
         };
-
         const deleteButton = {
-            height:'100%'
+            width: '5%',
+            height: '5%',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            position: 'absolute',
+            marginLeft: '450px',
+            marginTop: '-8px'
+        };
+        const buttonStyle = {
+            backgroundColor : '#4CAF50',
+            border : 'none',
+            padding: '30px 32 px',
+            textAlign: 'center',
+            textDecoration: 'none',
+            display: 'inline-block',
+            fontSize: '16px',
+            marginBottom : '15px',
+            width: '40%',
+            height : '50px'
         };
 
         return (<div style={itemStyle}>
             <div>
                 <label>Сумма</label>
-                <input type='number' style={inputStyle}/>
+                <input type='number' style={inputStyle} onChange={this.onChangeSum} value={this.props.sum}/>
                 <label>Комментарий</label>
-                <textarea style={textAreaStyle}/>
+                <textarea onChange={this.onChangeComment} style={textAreaStyle} value={this.props.comment}/>
                 <div>
                     <StyledDropZone onDrop={this.addFile} />
                     <ul>
@@ -63,6 +88,7 @@ class PaymentFormCreateOrUpdateItem  extends Component{
                         }
                     </ul>
                 </div>
+                <button style={buttonStyle} onClick={this.props.onRemove}>Удалить запись</button>
             </div>
         </div>);
     }
@@ -82,7 +108,9 @@ export default class CreateOrUpdatePaymentForm extends Component {
             items.push({sum : 0, comment : '', files : []});
         }
 
-        this.state = {items : items};
+        this.state = {items : items.map((item, i)=> {
+            return {...item, index : i}
+            })};
 
         this.handleChange = this.handleChange.bind(this);
         this.createForm = this.createForm.bind(this);
@@ -93,22 +121,27 @@ export default class CreateOrUpdatePaymentForm extends Component {
     }
 
     createForm() {
-
-        //const items = this.items.
-
-        var forms = {
-            name : '',
-            lastName : '',
-            surname : '',
-            type : 1
+        var form = {
+            applicant : {
+                name: this.state.name,
+                lastName: this.state.lastName,
+                surname: this.state.surName,
+            },
+            type : 1,
+            items : []
         };
-        console.log(JSON.stringify(forms))
+
+        console.log(JSON.stringify(form))
 
 
         fetch('https://localhost:44379/paymentForm',
             {
                 method: 'post',
-                body: JSON.stringify(this.state.form)
+                body: JSON.stringify(form),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
             })
             .then(function (response) {
              //   console.log(response)
@@ -122,11 +155,44 @@ export default class CreateOrUpdatePaymentForm extends Component {
     }
 
     addItemForm = () => {
+        const indexes = this.state.items.map(i => i.index);
+        const maxIndex = indexes.length === 0 ? 0 : Math.max(...indexes, 0) + 1;
+        console.log(maxIndex + " create index");
         this.setState((prevState) => ({
-            items : [...prevState.items, {sum : 0, comment : '', files : []}]
+            ...this.state,
+            items : [...prevState.items, {sum : 0, comment : '', files : [], index : maxIndex}]
         }));
     };
 
+    removeItemFunction = (i) => {
+        const index = i;
+        return  () => {
+            console.log(index + " remove index");
+            const newItems = this.state.items.filter(item => item.index !== index);
+            this.setState({...this.state, items: newItems})
+        }
+    };
+
+    onCommentChangeFunction = (i) => {
+        const index = i;
+        return (str) => {
+            console.log(index);
+            const lastElement = this.state.items.filter(item => item.index === index)[0];
+            lastElement.comment = str;
+            const newItems = this.state.items.filter(item => item.index !== index);
+            this.setState({...this.state, items: [...newItems, lastElement]});
+        }
+    };
+
+    onSumChangeFunction = (i) => {
+        const index = i;
+        return (number) => {
+            const lastElement = this.state.items.filter(item => item.index === index)[0];
+            lastElement.sum = number;
+            const newItems = this.state.items.filter(item => item.index !== index);
+            this.setState({...this.state, items: [...newItems, lastElement]});
+        }
+    };
 
     render() {
 
@@ -188,17 +254,23 @@ export default class CreateOrUpdatePaymentForm extends Component {
             marginTop: '10px'
         };
 
-        const items = this.state.items.map(i => <PaymentFormCreateOrUpdateItem item = {i}/>);
+        const items = this.state.items.map(item  => <PaymentFormCreateOrUpdateItem
+            item = {item}
+            onRemove={this.removeItemFunction(item.index)}
+            onCommentChange={this.onCommentChangeFunction(item.index)}
+            comment ={item.comment}
+            sum = {item.sum}
+            onSumChange = {this.onSumChangeFunction(item.index)}/>);
 
         return (
             <div style={formBox}>
                 <div style={paymentFormStyle}>
                     <label>Фамилия</label>
-                    <input type='text' style={inputStyle}/>
+                    <input type='text' style={inputStyle} onChange={(event) => this.setState({...this.state, lastName : event.target.value})}/>
                     <label>Имя</label>
-                    <input type='text' style={inputStyle}/>
+                    <input type='text' style={inputStyle} onChange={(event) => this.setState({...this.state, name : event.target.value})}/>
                     <label>Отчество</label>
-                    <input type='text' style={inputStyle}/>
+                    <input type='text' style={inputStyle} onChange={(event) => this.setState({...this.state, surName : event.target.value})}/>
                     <label>
                         Тип
                     </label>
