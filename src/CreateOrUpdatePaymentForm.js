@@ -1,6 +1,17 @@
 import React, {Component} from "react";
+import { StyledDropZone } from 'react-drop-zone'
+import 'react-drop-zone/dist/styles.css'
 
 class PaymentFormCreateOrUpdateItem  extends Component{
+    constructor(props) {
+        super(props);
+        this.state = {files : []};
+    }
+
+    addFile = (file, text) => {
+        this.setState({ files: [...this.state.files, file] })
+    };
+
     render() {
 
         const textAreaStyle = {
@@ -30,12 +41,28 @@ class PaymentFormCreateOrUpdateItem  extends Component{
             boxSizing: 'border-box'
         };
 
+        const deleteButton = {
+            height:'100%'
+        };
+
         return (<div style={itemStyle}>
             <div>
                 <label>Сумма</label>
                 <input type='number' style={inputStyle}/>
                 <label>Комментарий</label>
                 <textarea style={textAreaStyle}/>
+                <div>
+                    <StyledDropZone onDrop={this.addFile} />
+                    <ul>
+                        {
+                            this.state.files.map(file =>
+                                <li>
+                                    <button style={deleteButton}>Удалить</button><i className='fa fa-file' /> {file.name} [{file.type}]
+                                </li>
+                            )
+                        }
+                    </ul>
+                </div>
             </div>
         </div>);
     }
