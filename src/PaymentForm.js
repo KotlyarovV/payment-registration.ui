@@ -43,7 +43,7 @@ export default class PaymentForm extends Component {
                                 {paymentItems}
                             </div>
                             <div>
-                                <button className="add">UPDATE</button>
+                                <button className="add" onClick={this.props.onUpdate}>UPDATE</button>
                                 <button className="add" onClick={this.props.onDeleteButtonClick}>DELETE</button>
                             </div>
                         </div>

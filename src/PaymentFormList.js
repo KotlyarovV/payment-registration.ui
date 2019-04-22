@@ -9,15 +9,17 @@ export default class PaymentFormList extends Component {
     }
 
     addForm = () => {
-        this.setState({ ...this.state, show: true });
+        this.setState({ ...this.state, show: true, formToUpdate : undefined });
     };
 
     updateForm = (form) => {
-        this.setState({...this.state, show : true, formToUpdate : form});
+        const formToUpdate = form;
+        this.setState({...this.state, show : true, formToUpdate : formToUpdate});
     };
 
     hideAddOrUpdateComponent = () => {
       this.setState({...this.state, show:false});
+      this.fetchForms();
     };
 
     fetchForms() {
@@ -63,21 +65,37 @@ export default class PaymentFormList extends Component {
             width: '100%',
             height: '50px'
         };
-        const forms = this.state.forms.sort((f) => - f.number).map((form) =>
+
+        let mainFormStyle = {position : 'absolute', width : '100%'};
+
+        if (this.state.show) {
+            mainFormStyle = {...mainFormStyle, display : 'none'}
+        }
+
+        const forms = this.state.forms.sort(function (f1, f2) {
+                if (f1.number < f2.number) {
+                    return -1;
+                }
+                else if (f1.number > f2.number){
+                    return 1;
+                }
+                return 0;
+            })
+            .map((form) =>
             <PaymentForm
                 form={form}
                 onDeleteButtonClick={this.onDeleteButton(form.id)}
                 addForm={this.handleShow}
-                onUpdate = {() => this.updateForm(form)}
+                onUpdate = {() => {this.updateForm(form)}}
                 />);
         return (
             <div>
                 <CreateOrUpdatePaymentForm
-                show = {this.state.show}
-                style = {{position : 'fixed'}}
-                onHide = {this.hideAddOrUpdateComponent}
-                formToUpdate = {this.state.formToUpdate}/>
-                <div style={{position : 'fixed', width : '100%'}}>
+                    show = {this.state.show}
+                    style = {{position : 'fixed'}}
+                    onHide = {this.hideAddOrUpdateComponent}
+                    formToUpdate = {this.state.formToUpdate}/>
+                <div style={mainFormStyle}>
                     <div>
                         <button style={buttonStyle} onClick={this.addForm}>Добавить</button>
                     </div>
