@@ -7,8 +7,8 @@ import CreateOrUpdatePaymentForm from './CreateOrUpdatePaymentForm'
 class App extends Component {
     render() {
         return (
-             //<PaymentFormList/>
-            <CreateOrUpdatePaymentForm/>
+             <PaymentFormList/>
+            //<CreateOrUpdatePaymentForm/>
         );
     }
 }
